@@ -6,6 +6,7 @@ class WAF {
     private $botDetector;
     private $rateLimiter;
     private $captchaVerifier;
+    private $ddosMitigator;
 
     public function __construct() {
         // Inicializa los módulos
@@ -14,6 +15,7 @@ class WAF {
         $this->botDetector = new BotDetector();
         $this->rateLimiter = new RateLimiter();
         $this->captchaVerifier = new CaptchaVerifier();
+        $this->ddosMitigator = new DDosMitigator(); // Integración del mitigador de DDoS
     }
 
     public function handleRequest($request) {
@@ -32,7 +34,12 @@ class WAF {
             $this->denyAccess("Bot detectado.");
         }
 
-        // Verifica si hay patrones de ataque DDoS o tráfico anómalo
+        // Verifica si hay patrones de ataque DDoS o tráfico anómalo usando DDosMitigator
+        if (!$this->ddosMitigator->mitigate($request)) {
+            $this->denyAccess("Ataque DDoS detectado.");
+        }
+
+        // Verifica si hay patrones de ataque DDoS o tráfico anómalo usando TrafficAnalyzer
         if ($this->trafficAnalyzer->detectAnomaly($request)) {
             $this->denyAccess("Ataque DDoS detectado.");
         }
@@ -56,7 +63,6 @@ class WAF {
 
     private function allowAccess() {
         // Permitir acceso a la aplicación
-        // Aquí podrías redirigir al contenido principal de la aplicación.
         echo "Acceso permitido";
     }
 
@@ -66,5 +72,3 @@ class WAF {
         exit();
     }
 }
-
-
