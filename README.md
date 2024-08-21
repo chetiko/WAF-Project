@@ -78,5 +78,5 @@ Agradecemos a todos los colaboradores que han contribuido al proyecto. Tu partic
 
 ## Licencia
 
-Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENSE` para obtener más detalles.
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
 
