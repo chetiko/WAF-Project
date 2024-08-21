@@ -1,0 +1,42 @@
+<?php
+
+class RFIAnalyzer {
+
+    public function analyze($request) {
+        $uri = $request['REQUEST_URI'] ?? '';
+        $parameters = $this->getQueryParameters($uri);
+
+        // Verifica si los parámetros contienen URLs remotas
+        foreach ($parameters as $param) {
+            if ($this->containsRemoteURL($param)) {
+                return true; // Posible ataque RFI detectado
+            }
+
+            // Decodifica el parámetro y verifica de nuevo
+            $decodedParam = urldecode($param);
+            if ($this->containsRemoteURL($decodedParam)) {
+                return true; // Ataque RFI detectado en parámetro decodificado
+            }
+        }
+
+        return false; // No se detectaron ataques RFI
+    }
+
+    private function getQueryParameters($uri) {
+        // Extrae los parámetros de la URI
+        $queryString = parse_url($uri, PHP_URL_QUERY);
+        parse_str($queryString, $params);
+        return array_values($params);
+    }
+
+    private function containsRemoteURL($param) {
+        // Detecta la presencia de URLs remotas (http, https, ftp)
+        $patterns = ['http://', 'https://', 'ftp://'];
+        foreach ($patterns as $pattern) {
+            if (strpos($param, $pattern) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
