@@ -3,12 +3,14 @@
 require_once 'TrafficAnalyzer.php';
 require_once 'BotDetector.php';
 require_once 'CaptchaVerifier.php';
+require_once 'ModelLoader.php';
 
 class DDosMitigator {
 
     private $trafficAnalyzer;
     private $botDetector;
     private $captchaVerifier;
+    private $modelLoader;
     private $redis;
 
     public function __construct() {
@@ -20,6 +22,9 @@ class DDosMitigator {
         $this->trafficAnalyzer = new TrafficAnalyzer($this->redis);
         $this->botDetector = new BotDetector();
         $this->captchaVerifier = new CaptchaVerifier('recaptcha', 'your_recaptcha_secret_key');
+        
+        // Inicializar el cargador de modelos de Machine Learning
+        $this->modelLoader = new ModelLoader(__DIR__ . '/../data/model.json'); // Ruta del modelo JSON
     }
 
     public function mitigate($request) {
@@ -35,7 +40,13 @@ class DDosMitigator {
             $this->blockRequest($ip, 'Bot Detected');
         }
 
-        // 3. Verifica si es necesario presentar un CAPTCHA
+        // 3. Predicción basada en Machine Learning
+        $prediction = $this->modelLoader->predict($request);
+        if ($prediction === 'malicious') {
+            $this->blockRequest($ip, 'Predicted Malicious by ML Model');
+        }
+
+        // 4. Verifica si es necesario presentar un CAPTCHA
         if ($this->shouldPresentCaptcha($request)) {
             if (!$this->captchaVerifier->verifyCaptcha($request['g-recaptcha-response'], $ip)) {
                 $this->captchaVerifier->handleCaptchaFailure();
