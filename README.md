@@ -76,5 +76,7 @@ Agradecemos a todos los colaboradores que han contribuido al proyecto. Tu partic
 
 ¡Gracias por tu interés y por ayudar a hacer de este proyecto algo mejor!
 
+## Licencia
 
+Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo `LICENSE` para obtener más detalles.
 
